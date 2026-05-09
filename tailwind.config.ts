@@ -24,8 +24,6 @@ const config: Config = {
         foreground: "hsl(var(--foreground))",
         card: "hsl(var(--card))",
         border: "hsl(var(--border))",
-        accent: "hsl(var(--accent))",
-        "accent-foreground": "hsl(var(--accent-foreground))",
         ring: "hsl(var(--ring))",
         primary: "#2563eb",
         "primary-dark": "#1d4ed8",
