@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import { navLinks } from "@/constants/site";
+import { navLinks, siteConfig } from "@/constants/site";
 import { cn } from "@/lib/utils";
 import { useScrollSpy } from "@/hooks/use-scroll-spy";
 
@@ -29,13 +29,13 @@ export function Navbar() {
     >
       <div
         className={cn(
-          "mx-auto flex max-w-6xl items-center justify-between gap-4 rounded-full border border-white/10 px-4 py-3 sm:px-5",
-          "bg-white/80 backdrop-blur-xl",
-          scrolled ? "border-slate-200" : "border-slate-100"
+          "mx-auto flex max-w-6xl items-center justify-between gap-4 rounded-full border border-ink/5 px-4 py-3 sm:px-5",
+          "bg-pureWhite/80 backdrop-blur-xl",
+          scrolled ? "border-ink/10 shadow-soft" : "border-transparent"
         )}
       >
-        <a href="#home" className="shrink-0 text-sm font-semibold tracking-wide text-slate-900">
-          PRAVEEN
+        <a href="#home" className="shrink-0 text-sm font-space font-medium tracking-widest uppercase text-ink">
+          {siteConfig.name.split(" ")[0]}
         </a>
         <nav className="hidden items-center gap-4 text-[11px] font-medium uppercase tracking-[0.14em] text-slate-600 lg:flex xl:gap-6 xl:tracking-[0.18em]">
           {navLinks.map((link) => {
@@ -46,8 +46,8 @@ export function Navbar() {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  "transition hover:text-blue-600",
-                  active ? "text-slate-900" : "text-slate-500"
+                  "transition hover:text-vibrantOrange",
+                  active ? "text-ink" : "text-muted"
                 )}
               >
                 {link.label}
@@ -59,7 +59,7 @@ export function Navbar() {
           type="button"
           aria-label="Toggle navigation"
           onClick={() => setOpen((prev) => !prev)}
-          className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-slate-200 text-slate-700 lg:hidden"
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-ink/10 text-ink lg:hidden hover:bg-ink/5"
         >
           {open ? <X size={16} /> : <Menu size={16} />}
         </button>
@@ -67,18 +67,18 @@ export function Navbar() {
       <AnimatePresence>
         {open && (
           <motion.div
-            className="mx-auto mt-3 w-[min(100%,24rem)] rounded-lg border border-slate-200 bg-white/95 px-6 py-6 text-sm backdrop-blur-xl lg:hidden"
+            className="mx-auto mt-3 w-[min(100%,24rem)] rounded-lg border border-ink/10 bg-pureWhite/95 px-6 py-6 text-sm backdrop-blur-xl lg:hidden"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
           >
-            <div className="flex flex-col gap-4 text-sm uppercase tracking-[0.2em] text-slate-500">
+            <div className="flex flex-col gap-4 text-sm uppercase tracking-[0.2em] text-muted">
               {navLinks.map((link) => (
                 <a
                   key={link.href}
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className="transition hover:text-blue-600"
+                  className="transition hover:text-vibrantOrange"
                 >
                   {link.label}
                 </a>

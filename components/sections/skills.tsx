@@ -1,81 +1,112 @@
 "use client";
 
-import { Sparkles, Server, Code2 } from "lucide-react";
-import { motion } from "framer-motion";
-import { SectionShell } from "@/components/common/section-shell";
-import { SectionHeading } from "@/components/common/section-heading";
-import { Magnetic } from "@/components/common/magnetic";
-import { Badge } from "@/components/ui/badge";
-import { skills } from "@/constants/site";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { skills as siteSkills } from "@/constants/site";
 import { cn } from "@/lib/utils";
 
-const iconMap = [Sparkles, Code2, Server];
-
 export function Skills() {
+  const [activeIndex, setActiveIndex] = useState<number>(0);
+
   return (
-    <SectionShell id="skills">
-      <div className="container">
-        <SectionHeading
-          eyebrow="Skills"
-          title="A precision stack for AI, cloud, and real-time systems"
-          description="Vercel-inspired skill cards with animated gradients, hover glow, and magnetic interactions."
-        />
-        <div className="grid gap-6 lg:grid-cols-3">
-          {skills.map((skill, index) => {
-            const Icon = iconMap[index % iconMap.length];
-            return (
-              <motion.div
-                key={skill.category}
-                className="group relative overflow-hidden rounded-lg border border-slate-200 bg-white p-5 shadow-soft sm:p-6"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-80px" }}
-                transition={{ duration: 0.6, delay: index * 0.05 }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-100 via-transparent to-teal-100 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                <div className="relative z-10 space-y-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <p className="safe-text text-xs uppercase tracking-[0.18em] text-slate-500">
-                        {skill.category}
-                      </p>
-                      <p className="safe-text mt-2 text-base font-semibold leading-6 text-slate-900">
-                        {skill.description}
-                      </p>
-                    </div>
-                    <div className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-slate-200 bg-slate-50 text-blue-600">
-                      <Icon size={20} />
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {skill.items.map((item) => (
-                      <Magnetic key={item}>
-                        <Badge className="transition group-hover:border-blue-300">
-                          {item}
-                        </Badge>
-                      </Magnetic>
-                    ))}
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs uppercase tracking-[0.14em] text-slate-500">
-                      <span>Proficiency</span>
-                      <span className="text-blue-600">{skill.level}%</span>
-                    </div>
-                    <div className="h-2 w-full rounded-full bg-slate-100">
-                      <div
-                        className={cn(
-                          "h-2 rounded-full bg-gradient-to-r from-blue-500 via-sky-400 to-teal-400"
-                        )}
-                        style={{ width: `${skill.level}%` }}
-                      />
-                    </div>
-                  </div>
+    <section id="skills" className="relative min-h-screen py-32 md:py-48 px-6 flex items-center bg-pureWhite z-10">
+      
+      <div className="max-w-7xl mx-auto w-full">
+        {/* Section Header */}
+        <div className="flex items-center gap-6 mb-20 md:mb-32">
+          <span className="text-xs tracking-widest uppercase text-muted font-medium">03</span>
+          <div className="h-[1px] w-12 bg-muted/30" />
+          <span className="text-xs tracking-widest uppercase text-muted font-medium">Capabilities</span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-16 md:gap-8 relative">
+          
+          {/* Left Column: Domains List */}
+          <div className="md:col-span-5 flex flex-col gap-6">
+            {siteSkills.map((skill, index) => {
+              const isActive = index === activeIndex;
+              return (
+                <div 
+                  key={skill.category}
+                  className="group cursor-pointer relative py-4 border-b border-ink/5"
+                  onMouseEnter={() => setActiveIndex(index)}
+                  onClick={() => setActiveIndex(index)}
+                >
+                  <motion.div 
+                    className="flex items-center gap-6 relative z-10"
+                    animate={{ 
+                      x: isActive ? 20 : 0,
+                      opacity: isActive ? 1 : 0.4
+                    }}
+                    transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                  >
+                    <span className="text-xs font-space font-medium tracking-widest text-vibrantOrange opacity-0 group-hover:opacity-100 transition-opacity">
+                      0{index + 1}
+                    </span>
+                    <h3 className={cn(
+                      "text-3xl md:text-5xl font-light tracking-tight transition-colors duration-500",
+                      isActive ? "text-ink" : "text-ink"
+                    )}>
+                      {skill.category}
+                    </h3>
+                  </motion.div>
                 </div>
-              </motion.div>
-            );
-          })}
+              );
+            })}
+          </div>
+
+          {/* Right Column: Active Skills Details (Sticky) */}
+          <div className="md:col-span-6 md:col-start-7 relative">
+            <div className="sticky top-1/3">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeIndex}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                  className="flex flex-col gap-12"
+                >
+                  {/* Category Description */}
+                  <div>
+                    <h4 className="text-sm tracking-widest uppercase text-vibrantOrange font-medium mb-6">
+                      Approach
+                    </h4>
+                    <p className="editorial-text text-2xl md:text-3xl text-ink font-light leading-relaxed">
+                      {siteSkills[activeIndex].description}
+                    </p>
+                  </div>
+
+                  {/* Skills Grid */}
+                  <div>
+                    <h4 className="text-sm tracking-widest uppercase text-muted font-medium mb-8">
+                      Toolkit
+                    </h4>
+                    <div className="grid grid-cols-2 gap-y-6 gap-x-8">
+                      {siteSkills[activeIndex].items.map((item, idx) => (
+                        <motion.div 
+                          key={item}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.1 + (idx * 0.05), duration: 0.5 }}
+                          className="flex items-center gap-4"
+                        >
+                          <div className="w-1.5 h-1.5 rounded-full bg-vibrantOrange/50" />
+                          <span className="editorial-text text-lg text-ink/80 font-medium tracking-wide">
+                            {item}
+                          </span>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </div>
+
         </div>
       </div>
-    </SectionShell>
+      
+    </section>
   );
 }

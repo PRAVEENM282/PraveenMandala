@@ -5,18 +5,21 @@ import "./globals.css";
 import { siteConfig } from "@/constants/site";
 import { Providers } from "@/components/providers";
 import { Navbar } from "@/components/navbar";
-import { ScrollProgress } from "@/components/scroll-progress";
+import { SmoothScroll } from "@/components/smooth-scroll";
+import { LivingBackground } from "@/components/living-background";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
-  display: "swap"
+  display: "swap",
+  weight: ["300", "400", "500", "600"]
 });
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-space",
-  display: "swap"
+  display: "swap",
+  weight: ["400", "500", "600", "700"]
 });
 
 export const metadata: Metadata = {
@@ -25,12 +28,10 @@ export const metadata: Metadata = {
   description: siteConfig.description,
   keywords: [
     "Praveen Mandala",
+    "Portfolio",
+    "Digital Experience",
     "AI Engineer",
-    "Full Stack Developer",
-    "Systems Engineer",
-    "MLOps",
-    "Cloud Infrastructure",
-    "Next.js Portfolio"
+    "Full Stack Developer"
   ],
   openGraph: {
     title: siteConfig.title,
@@ -59,7 +60,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f8fafc",
+  themeColor: "#FFFDF8",
   colorScheme: "light"
 };
 
@@ -71,12 +72,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${spaceGrotesk.variable} min-h-screen bg-background font-sans text-foreground antialiased`}
+        className={`${inter.variable} ${spaceGrotesk.variable} min-h-screen bg-pureWhite font-sans text-ink antialiased selection:bg-vibrantOrange/20`}
       >
         <Providers>
-          <ScrollProgress />
-          <Navbar />
-          {children}
+          <SmoothScroll>
+            <LivingBackground />
+            <Navbar />
+            {children}
+          </SmoothScroll>
         </Providers>
       </body>
     </html>
