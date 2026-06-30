@@ -77,7 +77,6 @@ export function Contact() {
               </a>
             ))}
           </div>
-          <span>Living Organism v2.0</span>
         </motion.div>
 
       </div>
