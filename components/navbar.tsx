@@ -1,92 +1,38 @@
 "use client";
 
-import { useState } from "react";
-import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import { Menu, X } from "lucide-react";
-import { navLinks, siteConfig } from "@/constants/site";
+import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "motion/react";
+import { navLinks, RESUME_URL, siteConfig } from "@/constants/site";
+import { useActiveSection } from "@/hooks/use-active-section";
 import { cn } from "@/lib/utils";
-import { useScrollSpy } from "@/hooks/use-scroll-spy";
+
+const SECTION_IDS = navLinks.map((link) => link.href.slice(1));
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const { scrollY } = useScroll();
-  const activeId = useScrollSpy(navLinks.map((link) => link.href.replace("#", "")));
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const reducedMotion = useReducedMotion();
+  const { activeId, setActiveId } = useActiveSection(SECTION_IDS);
 
-  useMotionValueEvent(scrollY, "change", (latest) => {
-    setScrolled(latest > 40);
-  });
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => { if (event.key === "Escape") { setOpen(false); menuButtonRef.current?.focus(); } };
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, []);
 
-  return (
-    <motion.header
-      className={cn(
-        "fixed top-4 left-0 right-0 z-50 px-4 transition",
-        scrolled ? "drop-shadow-[0_20px_40px_rgba(0,0,0,0.35)]" : ""
-      )}
-      initial={{ y: -30, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.8, ease: "easeOut" }}
-    >
-      <div
-        className={cn(
-          "mx-auto flex max-w-6xl items-center justify-between gap-4 rounded-full border border-ink/5 px-4 py-3 sm:px-5",
-          "bg-pureWhite/80 backdrop-blur-xl",
-          scrolled ? "border-ink/10 shadow-soft" : "border-transparent"
-        )}
-      >
-        <a href="#home" className="shrink-0 text-sm font-space font-medium tracking-widest uppercase text-ink">
-          {siteConfig.name.split(" ")[0]}
-        </a>
-        <nav className="hidden items-center gap-4 text-[11px] font-medium uppercase tracking-[0.14em] text-slate-600 lg:flex xl:gap-6 xl:tracking-[0.18em]">
-          {navLinks.map((link) => {
-            const id = link.href.replace("#", "");
-            const active = id === activeId;
-            return (
-              <a
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "transition hover:text-vibrantOrange",
-                  active ? "text-ink" : "text-muted"
-                )}
-              >
-                {link.label}
-              </a>
-            );
-          })}
-        </nav>
-        <button
-          type="button"
-          aria-label="Toggle navigation"
-          onClick={() => setOpen((prev) => !prev)}
-          className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-ink/10 text-ink lg:hidden hover:bg-ink/5"
-        >
-          {open ? <X size={16} /> : <Menu size={16} />}
-        </button>
-      </div>
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            className="mx-auto mt-3 w-[min(100%,24rem)] rounded-lg border border-ink/10 bg-pureWhite/95 px-6 py-6 text-sm backdrop-blur-xl lg:hidden"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-          >
-            <div className="flex flex-col gap-4 text-sm uppercase tracking-[0.2em] text-muted">
-              {navLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setOpen(false)}
-                  className="transition hover:text-vibrantOrange"
-                >
-                  {link.label}
-                </a>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.header>
-  );
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
+
+  const navigate = (id: string) => { setActiveId(id); setOpen(false); };
+  return <header className="fixed inset-x-0 top-0 z-50 border-b border-black/10 bg-background/90 backdrop-blur-md">
+    <div className="page-shell flex h-16 items-center justify-between gap-6">
+      <a href="#home" onClick={() => navigate("home")} aria-label={`${siteConfig.name}, back to top`} className="font-mono text-sm font-bold tracking-[-0.12em] text-foreground">PM<span className="text-accent">.</span></a>
+      <LayoutGroup id="primary-navigation"><nav aria-label="Primary navigation" className="hidden items-center gap-5 lg:flex">{navLinks.map((link) => { const id = link.href.slice(1); const active = activeId === id; return <a key={link.href} href={link.href} onClick={() => navigate(id)} className={cn("relative py-5 font-mono text-[.6875rem] uppercase tracking-[.12em] text-black/50 transition-colors hover:text-foreground", active && "text-foreground")} aria-current={active ? "location" : undefined}>{link.label}{active ? <motion.span layoutId="nav-underline" className="absolute inset-x-0 bottom-0 h-0.5 bg-accent" transition={{ duration: reducedMotion ? 0 : .22 }} /> : null}</a>; })}</nav></LayoutGroup>
+      <div className="flex items-center gap-4"><a href={RESUME_URL} target="_blank" rel="noopener noreferrer" className="hidden border border-foreground px-3 py-2 font-mono text-[.6875rem] font-semibold uppercase tracking-[.1em] transition-colors hover:bg-foreground hover:text-white sm:inline-flex" aria-label="Open resume in a new tab">Resume</a><button ref={menuButtonRef} type="button" className="inline-flex size-10 items-center justify-center border border-black/15 text-foreground lg:hidden" aria-label={open ? "Close navigation menu" : "Open navigation menu"} aria-expanded={open} aria-controls="mobile-navigation" onClick={() => setOpen((value) => !value)}>{open ? <X aria-hidden="true" className="size-5" /> : <Menu aria-hidden="true" className="size-5" />}</button></div>
+    </div>
+    <AnimatePresence initial={false}>{open ? <motion.nav id="mobile-navigation" aria-label="Mobile navigation" initial={reducedMotion ? false : { opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={reducedMotion ? undefined : { opacity: 0, height: 0 }} transition={{ duration: reducedMotion ? 0 : .2 }} className="border-t border-black/10 bg-background lg:hidden"><div className="page-shell flex flex-col py-3">{navLinks.map((link) => { const id = link.href.slice(1); const active = activeId === id; return <a key={link.href} href={link.href} onClick={() => navigate(id)} aria-current={active ? "location" : undefined} className={cn("border-b border-black/10 py-3 font-mono text-xs uppercase tracking-[.12em] text-black/55 last:border-b-0", active && "text-foreground")}>{link.label}{active ? <span aria-hidden="true" className="ml-2 text-accent">•</span> : null}</a>; })}<a href={RESUME_URL} target="_blank" rel="noopener noreferrer" onClick={() => setOpen(false)} className="mt-4 inline-flex w-fit border border-foreground px-3 py-2 font-mono text-[.6875rem] font-semibold uppercase tracking-[.1em]" aria-label="Open resume in a new tab">Resume ↗</a></div></motion.nav> : null}</AnimatePresence>
+  </header>;
 }

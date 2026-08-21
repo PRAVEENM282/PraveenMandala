@@ -1,97 +1,23 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { RevealText } from "@/components/ui/reveal-text";
-import { MagneticButton } from "@/components/ui/magnetic-button";
-import { siteConfig } from "@/constants/site";
+import { ArrowDown, ArrowUpRight } from "lucide-react";
+import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "motion/react";
+import { siteConfig, RESUME_URL } from "@/constants/site";
+import { AmbientField } from "@/components/motion/ambient-field";
+import { PointerDepth } from "@/components/motion/pointer-depth";
+import { heroVariants, staggerContainer } from "@/components/motion/motion-config";
 
 export function Hero() {
-  const containerRef = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end start"]
-  });
-
-  const y1 = useTransform(scrollYProgress, [0, 1], [0, 200]);
-  const y2 = useTransform(scrollYProgress, [0, 1], [0, 100]);
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.95]);
-
-  return (
-    <motion.section 
-      id="home"
-      ref={containerRef}
-      className="relative h-[100svh] flex flex-col justify-center items-center px-6 overflow-hidden"
-      style={{ opacity }}
-    >
-      {/* Elegant Grid Background */}
-      <div className="absolute inset-0 z-0 bg-[linear-gradient(to_right,rgba(26,26,26,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(26,26,26,0.04)_1px,transparent_1px)] bg-[size:60px_60px] [mask-image:radial-gradient(ellipse_80%_60%_at_50%_0%,#000_40%,transparent_100%)]" />
-      
-      <div className="z-10 flex flex-col items-center justify-center text-center max-w-5xl mx-auto w-full">
-        {/* Cinematic Typography */}
-        <motion.div 
-          style={{ y: y1, scale }}
-          className="w-full"
-        >
-          <RevealText 
-            text="Praveen" 
-            className="section-title text-[15vw] leading-[0.8] md:text-[12vw] text-ink font-light tracking-tighter w-full justify-center"
-            delay={0.1}
-          />
-          <RevealText 
-            text="Mandala" 
-            className="section-title text-[15vw] leading-[0.8] md:text-[12vw] text-ink font-light tracking-tighter w-full justify-center italic opacity-80"
-            delay={0.3}
-          />
-        </motion.div>
-
-        {/* Subtitle / Role */}
-        <motion.div 
-          style={{ y: y2 }}
-          className="mt-12 md:mt-20 max-w-2xl mx-auto flex flex-col items-center gap-10"
-        >
-          <RevealText 
-            text={siteConfig.heroSubheadline}
-            className="editorial-text text-xl md:text-2xl text-muted font-light justify-center text-center"
-            delay={0.6}
-          />
-          
-          <motion.a 
-            href="/PRAVEENMANDALA.pdf" 
-            download 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.2, duration: 0.8 }}
-          >
-            <MagneticButton className="px-8 py-3 text-sm flex items-center gap-2">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-              Download Resume
-            </MagneticButton>
-          </motion.a>
-        </motion.div>
-      </div>
-
-      {/* Scroll indicator - simple, minimal, elegant */}
-      <motion.div 
-        className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5, duration: 1 }}
-        style={{ y: y2 }}
-      >
-        <span className="text-xs tracking-widest uppercase text-muted font-medium">Scroll</span>
-        <motion.div 
-          className="w-[1px] h-12 bg-muted/30 relative overflow-hidden"
-        >
-          <motion.div 
-            className="absolute top-0 left-0 w-full h-full bg-ink origin-top"
-            initial={{ scaleY: 0 }}
-            animate={{ scaleY: [0, 1, 0], translateY: ['-100%', '0%', '100%'] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          />
-        </motion.div>
-      </motion.div>
-    </motion.section>
-  );
+  const heroRef = useRef<HTMLElement>(null);
+  const reducedMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const nameY = useSpring(useTransform(scrollYProgress, [0, 1], [0, reducedMotion ? 0 : -90]), { stiffness: 90, damping: 25 });
+  const nameOpacity = useTransform(scrollYProgress, [0, .72], [1, .2]);
+  return <section id="home" ref={heroRef} className="relative isolate min-h-[100svh] scroll-mt-16 overflow-hidden border-b border-border pt-28 sm:pt-36 lg:pt-40"><AmbientField /><div className="page-shell relative flex min-h-[calc(100svh-7rem)] flex-col justify-center pb-14 sm:pb-20"><motion.div variants={staggerContainer(.1, .12)} initial={reducedMotion ? false : "hidden"} animate="visible">
+    <motion.p variants={heroVariants} className="font-mono text-[.6875rem] uppercase tracking-[.16em] text-accent">01 / engineering portfolio</motion.p>
+    <PointerDepth className="mt-8 w-fit max-w-full"><motion.h1 variants={heroVariants} style={reducedMotion ? undefined : { y: nameY, opacity: nameOpacity }} className="display-title max-w-[10ch] text-[clamp(4rem,14.5vw,13.5rem)] uppercase text-foreground"><span className="block">Praveen</span><span className="ml-[.11em] block text-foreground/65 sm:ml-[.2em]">Mandala</span></motion.h1></PointerDepth>
+    <motion.div variants={heroVariants} className="mt-10 max-w-3xl"><p className="text-[clamp(1.75rem,3.8vw,3.5rem)] font-medium leading-[.98] tracking-tight">AI Engineer <span className="text-accent">&amp;</span> Backend Engineer</p><p className="mt-6 max-w-2xl text-base leading-7 text-black/60 sm:text-lg">{siteConfig.heroSubheadline}</p></motion.div>
+    <motion.div variants={heroVariants} className="mt-9 flex flex-wrap items-center gap-5"><a href="#projects" className="group inline-flex items-center gap-2 bg-foreground px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-accent hover:text-foreground">View projects <ArrowDown aria-hidden="true" className="size-4 transition-transform group-hover:translate-y-1" /></a><a href={RESUME_URL} target="_blank" rel="noopener noreferrer" className="group inline-flex items-center gap-2 border border-border-strong px-5 py-3 text-sm font-semibold transition-colors hover:border-foreground" aria-label="Open resume in a new tab">Resume <ArrowUpRight aria-hidden="true" className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" /></a></motion.div>
+  </motion.div><div className="mt-auto grid gap-5 border-t border-border pt-4 text-sm text-black/55 sm:grid-cols-3"><div><span className="mb-2 block font-mono text-[.6875rem] uppercase tracking-[.14em] text-muted">Focus</span>AI infrastructure &amp; backend systems</div><div><span className="mb-2 block font-mono text-[.6875rem] uppercase tracking-[.14em] text-muted">Based in</span>{siteConfig.location}</div><div><span className="mb-2 block font-mono text-[.6875rem] uppercase tracking-[.14em] text-muted">Scroll to explore</span><span className="inline-flex items-center gap-2">Selected systems <span className="h-px w-8 bg-accent" /></span></div></div></div></section>;
 }
